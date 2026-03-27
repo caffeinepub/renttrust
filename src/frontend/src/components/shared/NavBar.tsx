@@ -48,20 +48,24 @@ export function NavBar() {
   const router = useRouter();
   const currentPath = router.state.location.pathname;
 
-  const scrollToEarlyAccess = () => {
+  const scrollToSection = (sectionId: string) => {
     if (currentPath !== "/") {
       router.navigate({ to: "/" });
       setTimeout(() => {
         document
-          .getElementById("early-access")
+          .getElementById(sectionId)
           ?.scrollIntoView({ behavior: "smooth" });
       }, 300);
     } else {
       document
-        .getElementById("early-access")
+        .getElementById(sectionId)
         ?.scrollIntoView({ behavior: "smooth" });
     }
     setMenuOpen(false);
+  };
+
+  const scrollToEarlyAccess = () => {
+    scrollToSection("early-access");
   };
 
   return (
@@ -82,22 +86,22 @@ export function NavBar() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link
-              to="/landlord"
+            <button
+              type="button"
               data-ocid="nav.landlord.link"
+              onClick={() => scrollToSection("for-landlords")}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              activeProps={{ className: "text-brand-green font-semibold" }}
             >
               For Landlords
-            </Link>
-            <Link
-              to="/tenant"
+            </button>
+            <button
+              type="button"
               data-ocid="nav.tenant.link"
+              onClick={() => scrollToSection("for-tenants")}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              activeProps={{ className: "text-brand-green font-semibold" }}
             >
               For Tenants
-            </Link>
+            </button>
             <Link
               to="/admin"
               data-ocid="nav.admin.link"
@@ -152,20 +156,20 @@ export function NavBar() {
         {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden border-t border-border py-3 flex flex-col gap-3 pb-4">
-            <Link
-              to="/landlord"
-              onClick={() => setMenuOpen(false)}
+            <button
+              type="button"
+              onClick={() => scrollToSection("for-landlords")}
               className="text-sm font-medium text-muted-foreground text-left px-1"
             >
               For Landlords
-            </Link>
-            <Link
-              to="/tenant"
-              onClick={() => setMenuOpen(false)}
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection("for-tenants")}
               className="text-sm font-medium text-muted-foreground text-left px-1"
             >
               For Tenants
-            </Link>
+            </button>
             <Link
               to="/admin"
               onClick={() => setMenuOpen(false)}

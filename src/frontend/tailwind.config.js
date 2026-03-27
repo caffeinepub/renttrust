@@ -57,6 +57,7 @@ export default {
           green: "oklch(var(--brand-green))",
           blue: "oklch(var(--brand-blue))",
         },
+        warning: "oklch(var(--warning))",
         chart: {
           1: "oklch(var(--chart-1))",
           2: "oklch(var(--chart-2))",

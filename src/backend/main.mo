@@ -5,9 +5,9 @@ import Text "mo:core/Text";
 import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   // Mix in authentication + role-based access control via persistent actor field (use as first field!).
   let accessControlState = AccessControl.initState();

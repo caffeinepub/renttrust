@@ -353,19 +353,27 @@ export function LandingPage() {
               </p>
               {/* Role CTAs */}
               <div className="flex flex-wrap gap-3 mb-8">
-                <Link to="/landlord" data-ocid="hero.landlord.link">
+                <button
+                  type="button"
+                  data-ocid="hero.landlord.link"
+                  onClick={() => scrollTo("for-landlords")}
+                >
                   <Button className="bg-brand-green hover:bg-brand-green/90 text-white rounded-full px-6 h-11 text-sm font-semibold">
                     I&apos;m a Landlord →
                   </Button>
-                </Link>
-                <Link to="/tenant" data-ocid="hero.tenant.link">
+                </button>
+                <button
+                  type="button"
+                  data-ocid="hero.tenant.link"
+                  onClick={() => scrollTo("for-tenants")}
+                >
                   <Button
                     variant="outline"
                     className="rounded-full px-6 h-11 text-sm font-semibold border-brand-blue text-brand-blue hover:bg-brand-blue/5"
                   >
                     I&apos;m a Tenant →
                   </Button>
-                </Link>
+                </button>
               </div>
               <button
                 type="button"
@@ -557,7 +565,7 @@ export function LandingPage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-8">
             What this means for you
           </h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4 mb-10">
             {[
               "Avoid bad tenants",
               "Reduce rent default risk",
@@ -577,11 +585,30 @@ export function LandingPage() {
               </div>
             ))}
           </div>
+          {/* Landlord Login / Sign Up */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Link to="/landlord" data-ocid="landlord_section.login.link">
+              <Button
+                variant="outline"
+                className="rounded-full border-brand-green text-brand-green hover:bg-brand-green/5 text-sm px-5 h-10 font-semibold"
+              >
+                Log in as Landlord
+              </Button>
+            </Link>
+            <Link to="/landlord" data-ocid="landlord_section.signup.link">
+              <Button className="bg-brand-green hover:bg-brand-green/90 text-white rounded-full text-sm px-5 h-10 font-semibold">
+                Sign up as Landlord
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Tenant teaser */}
-      <section className="py-12 bg-white border-t border-border">
+      <section
+        id="for-tenants"
+        className="py-12 bg-white border-t border-border"
+      >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h3 className="text-xl font-bold text-foreground mb-3">
             Better for tenants too
@@ -591,14 +618,21 @@ export function LandingPage() {
             them access better homes faster — without unnecessary stress or
             suspicion.
           </p>
-          <Link to="/tenant" data-ocid="tenant_teaser.learn_more.link">
-            <Button
-              variant="outline"
-              className="rounded-full border-brand-blue text-brand-blue hover:bg-brand-blue/5 text-sm px-5"
-            >
-              Learn more for tenants →
-            </Button>
-          </Link>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/tenant" data-ocid="tenant_section.login.link">
+              <Button
+                variant="outline"
+                className="rounded-full border-brand-blue text-brand-blue hover:bg-brand-blue/5 text-sm px-5 h-10 font-semibold"
+              >
+                Log in as Tenant
+              </Button>
+            </Link>
+            <Link to="/tenant" data-ocid="tenant_section.signup.link">
+              <Button className="bg-brand-blue hover:bg-brand-blue/90 text-white rounded-full text-sm px-5 h-10 font-semibold">
+                Sign up as Tenant
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 

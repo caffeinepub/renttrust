@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
 import {
   Table,
   TableBody,
@@ -12,6 +13,16 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useInternetIdentity } from "@/hooks/useInternetIdentity";
 import { useGetAllSignups, useIsCallerAdmin } from "@/hooks/useQueries";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  RefreshCw,
+  Save,
+  ShieldAlert,
+  Users,
+  XCircle,
+} from "lucide-react";
 import { useState } from "react";
 import { UserType } from "../backend";
 
@@ -65,6 +76,43 @@ function HouseIcon({ className }: { className?: string }) {
   );
 }
 
+const VERIFICATION_QUEUE = [
+  { name: "Chidi Okafor", status: "Pending" },
+  { name: "Amaka Nwosu", status: "Verified" },
+  { name: "Emeka Eze", status: "Rejected" },
+  { name: "Bola Adeyemi", status: "Pending" },
+];
+
+const RISK_ALERTS = [
+  { name: "Emeka Eze", detail: "21 days late — High Risk", severity: "high" },
+  {
+    name: "Tunde Fashola",
+    detail: "Repeated late payments (3×)",
+    severity: "high",
+  },
+  {
+    name: "Ngozi Obi",
+    detail: "Behavioural flag — neighbor complaint",
+    severity: "medium",
+  },
+];
+
+type VerificationStatus = "Pending" | "Verified" | "Rejected";
+
+function verificationBadge(status: VerificationStatus) {
+  if (status === "Verified")
+    return "bg-brand-green/10 text-brand-green border-brand-green/20";
+  if (status === "Rejected")
+    return "bg-destructive/10 text-destructive border-destructive/20";
+  return "bg-warning/10 text-warning border-warning/20";
+}
+
+function VerificationIcon({ status }: { status: VerificationStatus }) {
+  if (status === "Verified") return <CheckCircle2 className="w-3 h-3 mr-1" />;
+  if (status === "Rejected") return <XCircle className="w-3 h-3 mr-1" />;
+  return <Clock className="w-3 h-3 mr-1" />;
+}
+
 export function AdminPage() {
   const { identity, login, clear, isLoggingIn } = useInternetIdentity();
   const isLoggedIn = !!identity;
@@ -73,6 +121,18 @@ export function AdminPage() {
   const { data: signups, isLoading: isSignupsLoading } = useGetAllSignups();
 
   const [activeTab, setActiveTab] = useState("all");
+  const [weights, setWeights] = useState({
+    income: 30,
+    behavior: 25,
+    history: 30,
+    references: 15,
+  });
+  const [weightsSaved, setWeightsSaved] = useState(false);
+
+  const handleSaveWeights = () => {
+    setWeightsSaved(true);
+    setTimeout(() => setWeightsSaved(false), 2000);
+  };
 
   if (!isLoggedIn) {
     return (
@@ -207,20 +267,26 @@ export function AdminPage() {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      {/* Top Metrics — 5 cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
         <div className="bg-white rounded-2xl border border-border shadow-xs p-5">
-          <p className="text-xs text-muted-foreground mb-1">Total Signups</p>
+          <div className="w-8 h-8 rounded-lg bg-brand-blue/10 flex items-center justify-center mb-3">
+            <Users className="w-4 h-4 text-brand-blue" />
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">Total Tenants</p>
           {isSignupsLoading ? (
             <Skeleton className="h-7 w-12" />
           ) : (
             <p className="text-2xl font-bold text-foreground">
-              {(signups ?? []).length}
+              {tenantSignups.length}
             </p>
           )}
         </div>
         <div className="bg-white rounded-2xl border border-border shadow-xs p-5">
-          <p className="text-xs text-muted-foreground mb-1">Landlords</p>
+          <div className="w-8 h-8 rounded-lg bg-brand-green/10 flex items-center justify-center mb-3">
+            <Users className="w-4 h-4 text-brand-green" />
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">Total Landlords</p>
           {isSignupsLoading ? (
             <Skeleton className="h-7 w-12" />
           ) : (
@@ -230,21 +296,41 @@ export function AdminPage() {
           )}
         </div>
         <div className="bg-white rounded-2xl border border-border shadow-xs p-5">
-          <p className="text-xs text-muted-foreground mb-1">Tenants</p>
-          {isSignupsLoading ? (
-            <Skeleton className="h-7 w-12" />
-          ) : (
-            <p className="text-2xl font-bold text-brand-blue">
-              {tenantSignups.length}
-            </p>
-          )}
+          <div className="w-8 h-8 rounded-lg bg-brand-blue/10 flex items-center justify-center mb-3">
+            <RefreshCw className="w-4 h-4 text-brand-blue" />
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">
+            Active Verifications
+          </p>
+          <p className="text-2xl font-bold text-brand-blue">14</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-border shadow-xs p-5">
+          <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center mb-3">
+            <ShieldAlert className="w-4 h-4 text-destructive" />
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">
+            High Risk Tenants
+          </p>
+          <p className="text-2xl font-bold text-destructive">3</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-border shadow-xs p-5">
+          <div className="w-8 h-8 rounded-lg bg-warning/10 flex items-center justify-center mb-3">
+            <AlertTriangle className="w-4 h-4 text-warning" />
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">Default Rate</p>
+          <p className="text-2xl font-bold text-warning">4.2%</p>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl border border-border shadow-xs overflow-hidden">
+      {/* Early Access Signups Table */}
+      <div className="bg-white rounded-2xl border border-border shadow-xs overflow-hidden mb-6">
+        <div className="px-5 py-4 border-b border-border">
+          <h2 className="text-sm font-semibold text-foreground">
+            Early Access Signups
+          </h2>
+        </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="px-5 pt-5 pb-0 border-b border-border">
+          <div className="px-5 pt-4 pb-0 border-b border-border">
             <TabsList className="h-9 bg-muted rounded-lg">
               <TabsTrigger
                 data-ocid="admin.all.tab"
@@ -269,7 +355,6 @@ export function AdminPage() {
               </TabsTrigger>
             </TabsList>
           </div>
-
           <TabsContent value={activeTab} className="m-0">
             {isSignupsLoading ? (
               <div
@@ -277,7 +362,7 @@ export function AdminPage() {
                 className="p-8 flex flex-col gap-3"
               >
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-10 w-full" />
+                  <Skeleton key={`skeleton-${i}`} className="h-10 w-full" />
                 ))}
               </div>
             ) : filteredSignups.length === 0 ? (
@@ -343,6 +428,154 @@ export function AdminPage() {
             )}
           </TabsContent>
         </Tabs>
+      </div>
+
+      {/* Two-column: Verification Queue + Risk Monitoring */}
+      <div className="grid sm:grid-cols-2 gap-6 mb-6">
+        {/* Verification Queue */}
+        <div className="bg-white rounded-2xl border border-border shadow-xs overflow-hidden">
+          <div className="px-5 py-4 border-b border-border">
+            <h2 className="text-sm font-semibold text-foreground">
+              Verification Queue
+            </h2>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs">Tenant</TableHead>
+                <TableHead className="text-xs">Status</TableHead>
+                <TableHead className="text-xs">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {VERIFICATION_QUEUE.map((item, i) => (
+                <TableRow
+                  key={item.name}
+                  data-ocid={`admin.verification.item.${i + 1}`}
+                >
+                  <TableCell className="text-sm font-medium">
+                    {item.name}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs ${verificationBadge(item.status as VerificationStatus)}`}
+                    >
+                      <VerificationIcon
+                        status={item.status as VerificationStatus}
+                      />
+                      {item.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {item.status !== "Verified" ? (
+                      <Button
+                        data-ocid={`admin.verification.review.button.${i + 1}`}
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs px-3 rounded-lg"
+                      >
+                        Review
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Risk Monitoring */}
+        <div className="bg-white rounded-2xl border border-border shadow-xs overflow-hidden">
+          <div className="px-5 py-4 border-b border-border">
+            <h2 className="text-sm font-semibold text-foreground">
+              Risk Monitoring
+            </h2>
+          </div>
+          <div className="p-4 flex flex-col gap-3">
+            {RISK_ALERTS.map((alert, i) => (
+              <div
+                key={alert.name}
+                data-ocid={`admin.risk.item.${i + 1}`}
+                className={`flex gap-3 p-4 rounded-xl border-l-4 ${
+                  alert.severity === "high"
+                    ? "bg-destructive/5 border-destructive"
+                    : "bg-warning/5 border-warning"
+                }`}
+              >
+                <ShieldAlert
+                  className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
+                    alert.severity === "high"
+                      ? "text-destructive"
+                      : "text-warning"
+                  }`}
+                />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {alert.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {alert.detail}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Scoring Control Panel */}
+      <div className="bg-white rounded-2xl border border-border shadow-xs p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">
+              Scoring Control Panel
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Adjust how each factor contributes to the RentTrust Score
+            </p>
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-6 mb-6">
+          {[
+            { key: "income" as const, label: "Income Weight" },
+            { key: "behavior" as const, label: "Behavior Weight" },
+            { key: "history" as const, label: "History Weight" },
+            { key: "references" as const, label: "References Weight" },
+          ].map((item) => (
+            <div key={item.key}>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-foreground font-medium">
+                  {item.label}
+                </span>
+                <span className="text-brand-blue font-bold">
+                  {weights[item.key]}%
+                </span>
+              </div>
+              <Slider
+                data-ocid={`admin.scoring.${item.key}.toggle`}
+                value={[weights[item.key]]}
+                onValueChange={([val]) =>
+                  setWeights((prev) => ({ ...prev, [item.key]: val }))
+                }
+                min={5}
+                max={60}
+                step={5}
+                className="w-full"
+              />
+            </div>
+          ))}
+        </div>
+        <Button
+          data-ocid="admin.save_weights.button"
+          onClick={handleSaveWeights}
+          className="bg-brand-green hover:bg-brand-green/90 text-white rounded-full h-9 px-5 text-sm font-semibold gap-2"
+        >
+          <Save className="w-4 h-4" />
+          {weightsSaved ? "Saved!" : "Save Weights"}
+        </Button>
       </div>
     </div>
   );
